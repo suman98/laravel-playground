@@ -1,8 +1,7 @@
 <?php
 
 $routes = [
-    'SamplePackage',
-    'Another'
+    "ClientInfo"
 ];
 // Loop through packages and require their route files
 foreach ($routes as $package) {

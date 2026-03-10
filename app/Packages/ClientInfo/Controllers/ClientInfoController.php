@@ -1,16 +1,16 @@
 <?php
 
-namespace App\Packages\AnotherTest\Controllers;
+namespace App\Packages\ClientInfo\Controllers;
 
 use Illuminate\Http\Request;
-use App\Packages\AnotherTest\Services\AnotherTestService;
+use App\Packages\ClientInfo\Services\ClientInfoService;
 use App\Http\Controllers\Controller;
 
-class AnotherTestController extends Controller
+class ClientInfoController extends Controller
 {
     protected $service;
 
-    public function __construct(AnotherTestService $service)
+    public function __construct(ClientInfoService $service)
     {
         $this->service = $service;
     }
