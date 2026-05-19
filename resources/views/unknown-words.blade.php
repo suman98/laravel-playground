@@ -14,7 +14,7 @@
     {{-- Header --}}
     <div class="flex items-center justify-between mb-6">
         <div>
-            <h1 class="text-3xl font-bold text-gray-900">Unknown Words</h1>
+            <h1 class="text-3xl font-bold text-gray-900">Unknown Words Lists</h1>
             <p class="text-gray-500 mt-1">Manage your vocabulary list</p>
         </div>
         <button onclick="openModal()"
