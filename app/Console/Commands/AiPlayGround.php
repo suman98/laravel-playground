@@ -20,7 +20,7 @@ class AiPlayGround extends Command
      *
      * @var string
      */
-    protected $description = 'Interactive AI playground with persisted conversation history';
+    protected $description = 'Interactive AI playground with persisted conversation history and portfolio RAG (run ai:embed-portfolio first on PostgreSQL)';
 
     /**
      * Execute the console command.
@@ -35,6 +35,7 @@ class AiPlayGround extends Command
         $conversationId = null;
 
         $this->comment('Chatting as '.$user->email.'. Type exit or quit to leave.');
+        $this->comment('Portfolio answers use vector search — ensure `php artisan ai:embed-portfolio` has been run (PostgreSQL + pgvector).');
 
         while (true) {
             $question = $this->ask('>');
