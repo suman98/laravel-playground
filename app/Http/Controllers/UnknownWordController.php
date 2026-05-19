@@ -26,7 +26,7 @@ class UnknownWordController extends Controller
         $word = UnknownWord::create($validated);
 
         return response()->json([
-            'data' => ['word' => $word],
+            'data' => ['word' => $word->fresh()],
         ]);
     }
 
