@@ -66,6 +66,13 @@ class UnknownWordController extends Controller
         return response()->json(['data' => $words]);
     }
 
+    public function wallpaper()
+    {
+        $words = UnknownWord::inRandomOrder()->limit(4)->get();
+
+        return view('vocab-wallpaper', ['words' => $words]);
+    }
+
     public function destroy(UnknownWord $unknownWord)
     {
         $unknownWord->delete();
