@@ -10,7 +10,7 @@ class UnknownWordController extends Controller
     public function index()
     {
         return response()->json([
-            'data' => UnknownWord::latest()->get(),
+            'data' => UnknownWord::latest()->get(['id', 'word', 'meaning', 'sentence', 'np_word', 'enabled']),
         ]);
     }
 
@@ -66,9 +66,16 @@ class UnknownWordController extends Controller
         return response()->json(['data' => $words]);
     }
 
+    public function toggle(UnknownWord $unknownWord)
+    {
+        $unknownWord->update(['enabled' => !$unknownWord->enabled]);
+
+        return response()->json(['data' => ['id' => $unknownWord->id, 'enabled' => $unknownWord->enabled]]);
+    }
+
     public function wallpaper()
     {
-        $words = UnknownWord::inRandomOrder()->limit(4)->get();
+        $words = UnknownWord::where('enabled', true)->orderBy('word')->get();
 
         return view('vocab-wallpaper', ['words' => $words]);
     }

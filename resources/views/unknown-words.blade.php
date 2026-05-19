@@ -12,7 +12,7 @@
 <div class="max-w-5xl mx-auto py-10 px-4">
 
     {{-- Header --}}
-    <div class="flex items-center justify-between mb-8">
+    <div class="flex items-center justify-between mb-6">
         <div>
             <h1 class="text-3xl font-bold text-gray-900">Unknown Words</h1>
             <p class="text-gray-500 mt-1">Manage your vocabulary list</p>
@@ -26,6 +26,18 @@
     {{-- Notification --}}
     <div id="notification" class="hidden mb-4 px-4 py-3 rounded-lg text-sm font-medium"></div>
 
+    {{-- Search & filter bar --}}
+    <div class="flex items-center gap-3 mb-4">
+        <input id="search-input" type="search" placeholder="Search words, meaning, sentence…"
+               class="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
+               oninput="filterTable()">
+        <label class="flex items-center gap-2 text-sm text-gray-600 cursor-pointer select-none">
+            <input type="checkbox" id="show-disabled" onchange="filterTable()"
+                   class="w-4 h-4 accent-indigo-600">
+            Show disabled
+        </label>
+    </div>
+
     {{-- Table --}}
     <div class="bg-white rounded-2xl shadow overflow-hidden">
         <table class="w-full text-sm">
@@ -36,12 +48,13 @@
                     <th class="px-5 py-3 text-left">Meaning</th>
                     <th class="px-5 py-3 text-left">Sentence</th>
                     <th class="px-5 py-3 text-left">Nepali</th>
+                    <th class="px-5 py-3 text-center">Enabled</th>
                     <th class="px-5 py-3 text-center">Actions</th>
                 </tr>
             </thead>
             <tbody id="words-table" class="divide-y divide-gray-100 text-gray-700">
                 <tr id="loading-row">
-                    <td colspan="6" class="px-5 py-8 text-center text-gray-400">Loading...</td>
+                    <td colspan="7" class="px-5 py-8 text-center text-gray-400">Loading...</td>
                 </tr>
             </tbody>
         </table>
@@ -137,6 +150,7 @@
     const API_BASE = '/api';
     const CSRF    = document.querySelector('meta[name="csrf-token"]').content;
     let deleteTargetId = null;
+    let allWords = [];
 
     // ── Helpers ──────────────────────────────────────────────────────────────
 
@@ -174,34 +188,90 @@
 
     async function loadWords() {
         const tbody = document.getElementById('words-table');
-        tbody.innerHTML = '<tr id="loading-row"><td colspan="6" class="px-5 py-8 text-center text-gray-400">Loading...</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" class="px-5 py-8 text-center text-gray-400">Loading...</td></tr>';
 
         const res  = await fetch(`${API_BASE}/unknown_words`);
         const json = await res.json();
-        const words = json.data;
+        allWords   = json.data;
 
-        document.getElementById('empty-state').classList.toggle('hidden', words.length > 0);
+        renderTable();
+    }
 
-        if (words.length === 0) {
-            tbody.innerHTML = '';
+    function renderTable() {
+        const tbody       = document.getElementById('words-table');
+        const query       = document.getElementById('search-input').value.trim().toLowerCase();
+        const showDisabled = document.getElementById('show-disabled').checked;
+
+        const filtered = allWords.filter(w => {
+            if (!showDisabled && !w.enabled) return false;
+            if (!query) return true;
+            return [w.word, w.meaning, w.sentence, w.np_word].some(
+                v => v && String(v).toLowerCase().includes(query)
+            );
+        });
+
+        document.getElementById('empty-state').classList.toggle('hidden', allWords.length > 0);
+
+        if (filtered.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="7" class="px-5 py-8 text-center text-gray-400">${
+                allWords.length === 0 ? '' : 'No words match.'
+            }</td></tr>`;
             return;
         }
 
-        tbody.innerHTML = words.map((w, i) => `
-            <tr class="hover:bg-gray-50 transition">
-                <td class="px-5 py-3 text-gray-400">${i + 1}</td>
+        let counter = 0;
+        tbody.innerHTML = filtered.map(w => {
+            counter++;
+            const dim = !w.enabled ? 'opacity-40' : '';
+            return `
+            <tr class="hover:bg-gray-50 transition ${dim}" data-id="${w.id}">
+                <td class="px-5 py-3 text-gray-400">${counter}</td>
                 <td class="px-5 py-3 font-semibold text-indigo-700">${escape(w.word)}</td>
                 <td class="px-5 py-3 max-w-xs truncate" title="${escape(w.meaning)}">${escape(w.meaning)}</td>
                 <td class="px-5 py-3 max-w-xs truncate italic text-gray-500" title="${escape(w.sentence)}">${escape(w.sentence)}</td>
                 <td class="px-5 py-3 text-gray-600">${w.np_word ? escape(w.np_word) : '<span class="text-gray-300">—</span>'}</td>
+                <td class="px-5 py-3 text-center">
+                    <input type="checkbox" ${w.enabled ? 'checked' : ''}
+                           onchange="toggleEnabled(${w.id}, this)"
+                           class="w-4 h-4 accent-indigo-600 cursor-pointer">
+                </td>
                 <td class="px-5 py-3 text-center space-x-2">
                     <button onclick="openEdit(${JSON.stringify(w).replace(/"/g, '&quot;')})"
                             class="text-xs font-medium text-indigo-600 hover:underline">Edit</button>
                     <button onclick="openDeleteModal(${w.id}, '${escape(w.word)}')"
                             class="text-xs font-medium text-red-500 hover:underline">Delete</button>
                 </td>
-            </tr>
-        `).join('');
+            </tr>`;
+        }).join('');
+    }
+
+    function filterTable() {
+        renderTable();
+    }
+
+    async function toggleEnabled(id, checkbox) {
+        const word = allWords.find(w => w.id === id);
+        if (!word) return;
+
+        try {
+            const res = await fetch(`${API_BASE}/unknown_words/${id}/toggle`, {
+                method: 'PATCH',
+                headers: { 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' },
+            });
+
+            if (!res.ok) {
+                checkbox.checked = word.enabled; // revert
+                notify('Failed to update.', 'error');
+                return;
+            }
+
+            const json = await res.json();
+            word.enabled = json.data.enabled;
+            renderTable();
+        } catch {
+            checkbox.checked = word.enabled;
+            notify('Network error.', 'error');
+        }
     }
 
     function escape(str) {
@@ -284,8 +354,15 @@
                 return;
             }
 
+            const saved = json.data.word ?? json.data;
+            if (isEdit) {
+                const idx = allWords.findIndex(w => w.id === saved.id);
+                if (idx !== -1) allWords[idx] = saved;
+            } else {
+                allWords.unshift(saved);
+            }
             closeModal();
-            await loadWords();
+            renderTable();
             notify(isEdit ? 'Word updated successfully.' : 'Word added successfully.');
         } catch (err) {
             notify('Network error. Please try again.', 'error');
@@ -325,8 +402,9 @@
                 return;
             }
 
+            allWords = allWords.filter(w => w.id !== deleteTargetId);
             closeDeleteModal();
-            await loadWords();
+            renderTable();
             notify('Word deleted successfully.');
         } catch {
             notify('Network error. Please try again.', 'error');

@@ -10,3 +10,4 @@ Route::post('/save_unknown_words', [UnknownWordController::class, 'store']);
 Route::get('/unknown_words/{unknownWord}', [UnknownWordController::class, 'show']);
 Route::put('/unknown_words/{unknownWord}', [UnknownWordController::class, 'update']);
 Route::delete('/unknown_words/{unknownWord}', [UnknownWordController::class, 'destroy']);
+Route::patch('/unknown_words/{unknownWord}/toggle', [UnknownWordController::class, 'toggle']);
