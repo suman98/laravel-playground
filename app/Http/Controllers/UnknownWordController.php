@@ -1,0 +1,75 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\UnknownWord;
+use Illuminate\Http\Request;
+
+class UnknownWordController extends Controller
+{
+    public function index()
+    {
+        return response()->json([
+            'data' => UnknownWord::latest()->get(),
+        ]);
+    }
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'word'     => 'required|string|max:255',
+            'meaning'  => 'required|string',
+            'sentence' => 'required|string',
+            'np_word'  => 'nullable|string|max:255',
+        ]);
+
+        $word = UnknownWord::create($validated);
+
+        return response()->json([
+            'data' => ['word' => $word],
+        ]);
+    }
+
+    public function show(UnknownWord $unknownWord)
+    {
+        return response()->json([
+            'data' => ['word' => $unknownWord],
+        ]);
+    }
+
+    public function update(Request $request, UnknownWord $unknownWord)
+    {
+        $validated = $request->validate([
+            'word'     => 'required|string|max:255',
+            'meaning'  => 'required|string',
+            'sentence' => 'required|string',
+            'np_word'  => 'nullable|string|max:255',
+        ]);
+
+        $unknownWord->update($validated);
+
+        return response()->json([
+            'data' => ['word' => $unknownWord->fresh()],
+        ]);
+    }
+
+    public function random()
+    {
+        $words = UnknownWord::inRandomOrder()->limit(4)->get()->map(fn ($w) => [
+            'id'      => $w->id,
+            'word'    => $w->word,
+            'meaning' => $w->meaning,
+            'sentence'=> $w->sentence,
+            'nepali'  => $w->np_word,
+        ]);
+
+        return response()->json(['data' => $words]);
+    }
+
+    public function destroy(UnknownWord $unknownWord)
+    {
+        $unknownWord->delete();
+
+        return response()->json(['message' => 'Deleted successfully']);
+    }
+}

@@ -26,8 +26,12 @@ Route::middleware('auth')->group(function () {
 
 require __DIR__.'/auth.php';
 
+Route::get('/unknown-words', function () {
+    return view('unknown-words');
+})->name('unknown-words');
+
+require __DIR__.'/packages.php';
 
 Route::group(['prefix' => 'laravel-filemanager', 'middleware' => ['web', 'auth']], function () {
     \UniSharp\LaravelFilemanager\Lfm::routes();
 });
-
