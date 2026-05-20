@@ -75,7 +75,11 @@ class UnknownWordController extends Controller
 
     public function wallpaper()
     {
-        $words = UnknownWord::where('enabled', true)->orderBy('word')->get();
+        $words = UnknownWord::inRandomOrder()
+            ->limit(4)
+            ->where('enabled', true)
+            ->orderBy('word')
+            ->get();
 
         return view('vocab-wallpaper', ['words' => $words]);
     }
