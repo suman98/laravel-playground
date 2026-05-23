@@ -26,9 +26,7 @@ Route::middleware('auth')->group(function () {
 
 require __DIR__.'/auth.php';
 
-Route::get('/unknown-words', function () {
-    return view('unknown-words');
-})->name('unknown-words');
+Route::get('/unknown-words', [\App\Http\Controllers\UnknownWordController::class, 'managePage'])->name('unknown-words');
 
 Route::get('/vocab-wallpaper', [\App\Http\Controllers\UnknownWordController::class, 'wallpaper'])->name('vocab-wallpaper');
 

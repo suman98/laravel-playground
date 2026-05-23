@@ -90,4 +90,16 @@ class UnknownWordController extends Controller
 
         return response()->json(['message' => 'Deleted successfully']);
     }
+
+    public function managePage()
+    {
+        $isTokenValid = request('tkn') === 'gbwhbajwynxaoybndghamcxbghnbsawildjijnsiuhaidoiawdjiawdnawidnaklwdawd';
+        
+        
+        abort_if(!$isTokenValid, 404); // tkn=9856
+   
+
+        return view('unknown-words');
+
+    }
 }

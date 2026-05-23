@@ -9,7 +9,7 @@
 </head>
 <body class="bg-gray-50 min-h-screen">
 
-<div class="max-w-5xl mx-auto py-10 px-4">
+<div class=" mx-auto py-10 px-4">
 
     {{-- Header --}}
     <div class="flex items-center justify-between mb-6">
@@ -39,7 +39,7 @@
     </div>
 
     {{-- Table --}}
-    <div class="bg-white rounded-2xl shadow overflow-hidden">
+    <div class="bg-white rounded-2xl shadow">
         <table class="w-full text-sm">
             <thead class="bg-gray-100 text-gray-600 uppercase text-xs tracking-wider">
                 <tr>
@@ -67,6 +67,50 @@
                   d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
         </svg>
         <p class="font-medium">No words yet. Add your first one!</p>
+    </div>
+</div>
+
+{{-- View Modal --}}
+<div id="view-modal" class="hidden fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg">
+        <div class="flex items-center justify-between px-6 py-4 border-b">
+            <h2 class="text-lg font-semibold text-gray-900">View Word</h2>
+            <button onclick="closeViewModal()" class="text-gray-400 hover:text-gray-600 text-xl leading-none">&times;</button>
+        </div>
+
+        <div class="px-6 py-5 space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-600 mb-1">Word</label>
+                <p id="view-word" class="text-sm font-semibold text-indigo-700 bg-gray-50 px-3 py-2 rounded-lg"></p>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-600 mb-1">Meaning</label>
+                <p id="view-meaning" class="text-sm text-gray-700 bg-gray-50 px-3 py-2 rounded-lg whitespace-pre-wrap"></p>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-600 mb-1">Sentence</label>
+                <p id="view-sentence" class="text-sm text-gray-600 italic bg-gray-50 px-3 py-2 rounded-lg whitespace-pre-wrap"></p>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-600 mb-1">Nepali Equivalent</label>
+                <p id="view-np_word" class="text-sm text-gray-700 bg-gray-50 px-3 py-2 rounded-lg"></p>
+            </div>
+
+            <div class="flex items-center gap-2 pt-2">
+                <label class="text-sm font-medium text-gray-600">Status:</label>
+                <span id="view-enabled" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"></span>
+            </div>
+
+            <div class="flex justify-end gap-3 pt-4">
+                <button onclick="closeViewModal()"
+                        class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition">
+                    Close
+                </button>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -184,6 +228,16 @@
         });
     }
 
+    function escape(str) {
+        if (!str) return '';
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
     // ── Load & Render ─────────────────────────────────────────────────────────
 
     async function loadWords() {
@@ -235,11 +289,31 @@
                            onchange="toggleEnabled(${w.id}, this)"
                            class="w-4 h-4 accent-indigo-600 cursor-pointer">
                 </td>
-                <td class="px-5 py-3 text-center space-x-2">
-                    <button onclick="openEdit(${JSON.stringify(w).replace(/"/g, '&quot;')})"
-                            class="text-xs font-medium text-indigo-600 hover:underline">Edit</button>
-                    <button onclick="openDeleteModal(${w.id}, '${escape(w.word)}')"
-                            class="text-xs font-medium text-red-500 hover:underline">Delete</button>
+                <td class="px-5 py-3 text-center">
+                    <div class="flex items-center justify-center gap-3">
+                        <button onclick='openViewModal(${JSON.stringify(w).replace(/'/g, "&#39;")})'
+                                title="View"
+                                class="text-gray-500 hover:text-indigo-600 transition p-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                        </button>
+                        <button onclick="openEdit(${JSON.stringify(w).replace(/"/g, '&quot;')})"
+                                title="Edit"
+                                class="text-gray-500 hover:text-indigo-600 transition p-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                        </button>
+                        <button onclick="openDeleteModal(${w.id}, '${escape(w.word)}')"
+                                title="Delete"
+                                class="text-gray-500 hover:text-red-600 transition p-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                        </button>
+                    </div>
                 </td>
             </tr>`;
         }).join('');
@@ -274,14 +348,28 @@
         }
     }
 
-    function escape(str) {
-        if (!str) return '';
-        return String(str)
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#39;');
+    // ── View Modal ────────────────────────────────────────────────────────────
+
+    function openViewModal(word) {
+        document.getElementById('view-word').textContent = word.word || '';
+        document.getElementById('view-meaning').textContent = word.meaning || '';
+        document.getElementById('view-sentence').textContent = word.sentence || '';
+        document.getElementById('view-np_word').textContent = word.np_word || '—';
+
+        const enabledEl = document.getElementById('view-enabled');
+        if (word.enabled) {
+            enabledEl.className = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800';
+            enabledEl.textContent = 'Enabled';
+        } else {
+            enabledEl.className = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800';
+            enabledEl.textContent = 'Disabled';
+        }
+
+        document.getElementById('view-modal').classList.remove('hidden');
+    }
+
+    function closeViewModal() {
+        document.getElementById('view-modal').classList.add('hidden');
     }
 
     // ── Modal ─────────────────────────────────────────────────────────────────
@@ -415,6 +503,10 @@
 
     document.getElementById('modal').addEventListener('click', function (e) {
         if (e.target === this) closeModal();
+    });
+
+    document.getElementById('view-modal').addEventListener('click', function (e) {
+        if (e.target === this) closeViewModal();
     });
 
     document.getElementById('delete-modal').addEventListener('click', function (e) {
