@@ -197,6 +197,27 @@
   .delete-modal-body { padding: 24px 20px; text-align: center; }
   .delete-modal-body p { font-size: 13px; color: #555; margin-top: 8px; line-height: 1.5; }
   .delete-modal-body strong { color: #000; }
+
+  .inspire {
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 1px solid #e0e0e0;
+    text-align: center;
+  }
+  .inspire-quote {
+    font-family: 'Playfair Display', serif;
+    font-size: 14px;
+    color: #333;
+    line-height: 1.6;
+    font-style: italic;
+  }
+  .inspire-author {
+    margin-top: 8px;
+    font-size: 10.5px;
+    color: #aaa;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
 </style>
 </head>
 <body>
@@ -244,6 +265,10 @@
     @empty
       <div class="state-msg">No words found.</div>
     @endforelse
+  </div>
+
+  <div class="inspire">
+    <div class="inspire-quote">"{!! $quote !!}"</div>
   </div>
 </div>
 

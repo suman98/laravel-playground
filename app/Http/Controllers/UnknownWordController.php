@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\UnknownWord;
 use Illuminate\Http\Request;
+use Illuminate\Foundation\Inspiring;
 
 class UnknownWordController extends Controller
 {
@@ -80,8 +81,9 @@ class UnknownWordController extends Controller
             ->where('enabled', true)
             ->orderBy('word')
             ->get();
-
-        return view('vocab-wallpaper', ['words' => $words]);
+        $quote = Inspiring::quote();
+  
+        return view('vocab-wallpaper', compact('words', 'quote'));
     }
 
     public function destroy(UnknownWord $unknownWord)
