@@ -56,13 +56,20 @@ class UnknownWordController extends Controller
 
     public function random()
     {
-        $words = UnknownWord::inRandomOrder()->limit(4)->get()->map(fn ($w) => [
-            'id'      => $w->id,
-            'word'    => $w->word,
-            'meaning' => $w->meaning,
-            'sentence'=> $w->sentence,
-            'nepali'  => $w->np_word,
-        ]);
+        $words = UnknownWord::select(
+            'id',
+            'word',
+            'meaning',
+            'sentence',
+            'np_word as nepali'
+        )
+        ->orderBy('updated_at', 'asc')
+        ->limit(10)
+        ->get()
+        ->random(4);
+    
+        UnknownWord::whereIn('id', $words->pluck('id'))
+            ->update(['updated_at' => now()]);
 
         return response()->json(['data' => $words]);
     }

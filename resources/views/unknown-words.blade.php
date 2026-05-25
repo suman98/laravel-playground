@@ -257,12 +257,18 @@
         const showDisabled = document.getElementById('show-disabled').checked;
 
         const filtered = allWords.filter(w => {
-            if (!showDisabled && !w.enabled) return false;
+            // If showDisabled is checked, only show words where enabled is false
+            if (showDisabled) {
+                if (w.enabled) return false;
+            } else {
+                if (!w.enabled) return false;
+            }
             if (!query) return true;
             return [w.word, w.meaning, w.sentence, w.np_word].some(
                 v => v && String(v).toLowerCase().includes(query)
             );
         });
+
 
         document.getElementById('empty-state').classList.toggle('hidden', allWords.length > 0);
 

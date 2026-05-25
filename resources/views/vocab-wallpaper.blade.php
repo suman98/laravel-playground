@@ -223,10 +223,10 @@
 <body>
 
 <div id="main-content">
-  <div class="header">
+  <!-- <div class="header">
     <div class="header-date">{{ strtoupper(now()->format('F j, Y')) }}</div>
     <div class="divider"></div>
-  </div>
+  </div> -->
 
   <div class="cards-container">
     @forelse ($words as $word)
