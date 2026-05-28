@@ -17,10 +17,20 @@
             <h1 class="text-3xl font-bold text-gray-900">Unknown Words Lists</h1>
             <p class="text-gray-500 mt-1">Manage your vocabulary list</p>
         </div>
-        <button onclick="openModal()"
-                class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-5 py-2.5 rounded-lg transition">
-            + Add Word
-        </button>
+        <div class="flex items-center gap-3">
+            <a href="/vocab/slides"
+               class="bg-slate-700 hover:bg-slate-800 text-white font-semibold px-5 py-2.5 rounded-lg transition flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m1.636-6.364l.707.707M12 21v-1M6.343 17.657l-.707-.707M17.657 17.657l.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z"/>
+                </svg>
+                Vocab Slides
+            </a>
+            <button onclick="openModal()"
+                    class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-5 py-2.5 rounded-lg transition">
+                + Add Word
+            </button>
+        </div>
     </div>
 
     {{-- Notification --}}

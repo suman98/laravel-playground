@@ -30,6 +30,8 @@ Route::get('/unknown-words', [\App\Http\Controllers\UnknownWordController::class
 
 Route::get('/vocab-wallpaper', [\App\Http\Controllers\UnknownWordController::class, 'wallpaper'])->name('vocab-wallpaper');
 
+Route::get('/vocab/slides', [\App\Http\Controllers\UnknownWordController::class, 'slides'])->name('vocab.slides');
+
 require __DIR__.'/packages.php';
 
 Route::group(['prefix' => 'laravel-filemanager', 'middleware' => ['web', 'auth']], function () {

@@ -11,7 +11,7 @@ class UnknownWordController extends Controller
     public function index()
     {
         return response()->json([
-            'data' => UnknownWord::latest()->get(['id', 'word', 'meaning', 'sentence', 'np_word', 'enabled']),
+            'data' => UnknownWord::latest()->get(['id', 'word', 'meaning', 'sentence', 'np_word', 'enabled', 'is_familiar']),
         ]);
     }
 
@@ -98,6 +98,36 @@ class UnknownWordController extends Controller
         $unknownWord->delete();
 
         return response()->json(['message' => 'Deleted successfully']);
+    }
+
+    public function slides()
+    {
+        return view('vocab-slides');
+    }
+
+    public function markFamiliar(Request $request)
+    {
+        $request->validate(['id' => 'required|integer|exists:unknown_words,id']);
+        $word = UnknownWord::findOrFail($request->id);
+        $word->update(['is_familiar' => true]);
+
+        return response()->json(['data' => $word->fresh()]);
+    }
+
+    public function markUnfamiliar(Request $request)
+    {
+        $request->validate(['id' => 'required|integer|exists:unknown_words,id']);
+        $word = UnknownWord::findOrFail($request->id);
+        $word->update(['is_familiar' => false]);
+
+        return response()->json(['data' => $word->fresh()]);
+    }
+
+    public function resetFamiliar()
+    {
+        UnknownWord::query()->update(['is_familiar' => false]);
+
+        return response()->json(['message' => 'All words reset successfully.']);
     }
 
     public function managePage()
