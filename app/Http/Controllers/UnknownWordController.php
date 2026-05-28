@@ -86,6 +86,7 @@ class UnknownWordController extends Controller
         $words = UnknownWord::inRandomOrder()
             ->limit(4)
             ->where('enabled', true)
+            ->where('is_familiar', false)
             ->orderBy('word')
             ->get();
         $quote = Inspiring::quote();
