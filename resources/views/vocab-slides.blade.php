@@ -427,7 +427,7 @@
     function pronounce() {
         if (!('speechSynthesis' in window)) return;
         window.speechSynthesis.cancel();
-        const u = new SpeechSynthesisUtterance(words[current].word);
+        const u = new SpeechSynthesisUtterance(words[current].word.replace(/\[.*?\]/g, '').trim());
         u.lang  = 'en-US';
         u.rate  = 0.85;
         window.speechSynthesis.speak(u);
