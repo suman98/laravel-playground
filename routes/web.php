@@ -29,6 +29,7 @@ require __DIR__.'/auth.php';
 Route::get('/unknown-words', [\App\Http\Controllers\UnknownWordController::class, 'managePage'])->name('unknown-words');
 
 Route::get('/vocab-wallpaper', [\App\Http\Controllers\UnknownWordController::class, 'wallpaper'])->name('vocab-wallpaper');
+Route::get('/unknown-words/all', [\App\Http\Controllers\UnknownWordController::class, 'all'])->name('unknown-words.all');
 
 Route::get('/vocab/slides', [\App\Http\Controllers\UnknownWordController::class, 'slides'])->name('vocab.slides');
 
