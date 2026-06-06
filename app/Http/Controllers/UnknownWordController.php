@@ -94,6 +94,19 @@ class UnknownWordController extends Controller
         return view('vocab-wallpaper', compact('words', 'quote'));
     }
 
+    public function all(Request $request)
+    {
+        $column = $request->input('column');
+        if ($column && \Schema::hasColumn('unknown_words', $column)) {
+            $words = UnknownWord::pluck($column)->toArray();
+            return response()->json(['data' => $words]);
+        } else {
+            $words = UnknownWord::select('word', 'meaning', 'sentence', 'np_word')->enabled()->get();
+       
+            return response()->json(['data' => $words]);
+        }
+    }
+
     public function destroy(UnknownWord $unknownWord)
     {
         $unknownWord->delete();
