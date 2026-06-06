@@ -101,7 +101,7 @@ class UnknownWordController extends Controller
             $words = UnknownWord::pluck($column)->toArray();
             return response()->json(['data' => $words]);
         } else {
-            $words = UnknownWord::select('word', 'meaning', 'sentence', 'np_word')->enabled()->get();
+            $words = UnknownWord::select('word', 'meaning', 'sentence', 'np_word')->get();
        
             return response()->json(['data' => $words]);
         }
