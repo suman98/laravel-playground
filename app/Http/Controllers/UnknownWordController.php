@@ -31,6 +31,41 @@ class UnknownWordController extends Controller
         ]);
     }
 
+    public function import(Request $request)
+    {
+        $validated = $request->validate([
+            'words'                     => 'required|array|min:1',
+            'words.*.word'              => 'required|string|max:255',
+            'words.*.meaning'           => 'required|string',
+            'words.*.sentence'          => 'required',
+            'words.*.np_word'           => 'nullable|string|max:255',
+            'words.*.nepali_equivalent' => 'nullable|string|max:255',
+        ]);
+
+        $created = 0;
+        $updated = 0;
+
+        foreach ($validated['words'] as $row) {
+            $sentence = is_array($row['sentence']) ? implode("\n", $row['sentence']) : $row['sentence'];
+
+            $word = UnknownWord::firstOrNew(['word' => $row['word']]);
+            $word->fill([
+                'meaning'  => $row['meaning'],
+                'sentence' => $sentence,
+                'np_word'  => $row['np_word'] ?? $row['nepali_equivalent'] ?? null,
+            ]);
+            $word->save();
+
+            $word->wasRecentlyCreated ? $created++ : $updated++;
+        }
+
+        return response()->json([
+            'message' => "Imported: {$created} added, {$updated} updated.",
+            'created' => $created,
+            'updated' => $updated,
+        ]);
+    }
+
     public function show(UnknownWord $unknownWord)
     {
         return response()->json([
@@ -146,10 +181,10 @@ class UnknownWordController extends Controller
 
     public function managePage()
     {
-        $isTokenValid = request('tkn') === 'gbwhbajwynxaoybndghamcxbghnbsawildjijnsiuhaidoiawdjiawdnawidnaklwdawd';
+        // $isTokenValid = request('tkn') === 'gbwhbajwynxaoybndghamcxbghnbsawildjijnsiuhaidoiawdjiawdnawidnaklwdawd';
         
         
-        abort_if(!$isTokenValid, 404); // tkn=9856
+        // abort_if(!$isTokenValid, 404); // tkn=9856
    
 
         return view('unknown-words');

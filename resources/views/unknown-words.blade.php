@@ -26,6 +26,19 @@
                 </svg>
                 Vocab Slides
             </a>
+            <button onclick="exportWords()"
+                    class="bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 font-semibold px-5 py-2.5 rounded-lg transition">
+                Export
+            </button>
+            <button onclick="document.getElementById('import-file').click()"
+                    class="bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 font-semibold px-5 py-2.5 rounded-lg transition">
+                Import
+            </button>
+            <input type="file" id="import-file" accept="application/json,.json" class="hidden" onchange="importWords(event)">
+            <button onclick="openPasteModal()"
+                    class="bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 font-semibold px-5 py-2.5 rounded-lg transition">
+                Paste JSON
+            </button>
             <button onclick="openModal()"
                     class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-5 py-2.5 rounded-lg transition">
                 + Add Word
@@ -77,6 +90,36 @@
                   d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
         </svg>
         <p class="font-medium">No words yet. Add your first one!</p>
+    </div>
+</div>
+
+{{-- Paste JSON Modal --}}
+<div id="paste-modal" class="hidden fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg">
+        <div class="flex items-center justify-between px-6 py-4 border-b">
+            <h2 class="text-lg font-semibold text-gray-900">Paste JSON</h2>
+            <button onclick="closePasteModal()" class="text-gray-400 hover:text-gray-600 text-xl leading-none">&times;</button>
+        </div>
+
+        <div class="px-6 py-5 space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">JSON</label>
+                <textarea id="paste-json-input" rows="12" placeholder='[{"word": "Ephemeral", "meaning": "...", "sentence": "...", "np_word": "..."}]'
+                          class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
+                <p id="err-paste-json" class="hidden text-xs text-red-500 mt-1"></p>
+            </div>
+
+            <div class="flex justify-end gap-3 pt-2">
+                <button type="button" onclick="closePasteModal()"
+                        class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition">
+                    Cancel
+                </button>
+                <button type="button" id="paste-import-btn" onclick="importPastedJson()"
+                        class="px-5 py-2 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition">
+                    Import
+                </button>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -515,6 +558,114 @@
         }
     }
 
+    // ── Export / Import ──────────────────────────────────────────────────────
+
+    function exportWords() {
+        const payload = allWords.map(w => ({
+            word: w.word,
+            meaning: w.meaning,
+            sentence: w.sentence,
+            np_word: w.np_word ?? null,
+            enabled: !!w.enabled,
+        }));
+
+        const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+        const url  = URL.createObjectURL(blob);
+        const a    = document.createElement('a');
+        a.href     = url;
+        a.download = `unknown-words-${new Date().toISOString().slice(0, 10)}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+    }
+
+    async function importWords(e) {
+        const file = e.target.files[0];
+        e.target.value = '';
+        if (!file) return;
+
+        let parsed;
+        try {
+            parsed = JSON.parse(await file.text());
+        } catch {
+            notify('Invalid JSON file.', 'error');
+            return;
+        }
+
+        await sendImport(parsed);
+    }
+
+    async function sendImport(parsed) {
+        const words = Array.isArray(parsed) ? parsed : (parsed.words ?? parsed.data ?? null);
+        if (!Array.isArray(words) || words.length === 0) {
+            notify('JSON must be an array of words.', 'error');
+            return false;
+        }
+
+        try {
+            const res = await fetch(`${API_BASE}/unknown_words/import`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': CSRF,
+                    'Accept': 'application/json',
+                },
+                body: JSON.stringify({ words }),
+            });
+
+            const json = await res.json();
+
+            if (!res.ok) {
+                notify(json.message ?? 'Import failed.', 'error');
+                return false;
+            }
+
+            notify(json.message ?? 'Import complete.');
+            await loadWords();
+            return true;
+        } catch {
+            notify('Network error during import.', 'error');
+            return false;
+        }
+    }
+
+    // ── Paste JSON Modal ─────────────────────────────────────────────────────
+
+    function openPasteModal() {
+        document.getElementById('paste-json-input').value = '';
+        document.getElementById('err-paste-json').classList.add('hidden');
+        document.getElementById('paste-modal').classList.remove('hidden');
+    }
+
+    function closePasteModal() {
+        document.getElementById('paste-modal').classList.add('hidden');
+    }
+
+    async function importPastedJson() {
+        const input = document.getElementById('paste-json-input');
+        const errEl = document.getElementById('err-paste-json');
+        errEl.classList.add('hidden');
+
+        let parsed;
+        try {
+            parsed = JSON.parse(input.value);
+        } catch {
+            errEl.textContent = 'Invalid JSON.';
+            errEl.classList.remove('hidden');
+            return;
+        }
+
+        const btn = document.getElementById('paste-import-btn');
+        btn.disabled = true;
+        btn.textContent = 'Importing...';
+
+        const ok = await sendImport(parsed);
+
+        btn.disabled = false;
+        btn.textContent = 'Import';
+
+        if (ok) closePasteModal();
+    }
+
     // ── Close modals on backdrop click ────────────────────────────────────────
 
     document.getElementById('modal').addEventListener('click', function (e) {
@@ -527,6 +678,10 @@
 
     document.getElementById('delete-modal').addEventListener('click', function (e) {
         if (e.target === this) closeDeleteModal();
+    });
+
+    document.getElementById('paste-modal').addEventListener('click', function (e) {
+        if (e.target === this) closePasteModal();
     });
 
     // ── Init ──────────────────────────────────────────────────────────────────

@@ -1,17 +1,44 @@
-Create a new page called `vocab/slides` with the following features:
+```json 
 
-- Retrieve all words from `app/Models/UnknownWord.php`.
-- Display each word individually, one per slide.
-- Pronunciation of the word automatically when shown in slide.
-- At the bottom of each slide, include two buttons: "Familiar" and "Unfamiliar".
-    - When the user clicks "Familiar":
-        - Send a [PATCH] request to `/api/unknown-words/familiar`.
-        - This request should update the `is_familiar` boolean field in `app/Models/UnknownWord.php` for the respective word.
-    - When the user clicks "Unfamiliar":
-        - Send a [PATCH] request to `/api/unknown-words/unfamiliar`.
-        - This should set the `is_familiar` boolean value to false for that word.
-- After clicking either button, display the full details (e.g., meaning, sentence, Nepali equivalent, etc.) of the word to the user.
-- Include a "Reset All" button that sets the `is_familiar` field to false for all words.
-- Add next/previous button 
+[
+  {
+    "word": "procurement",
+    "meaning": "The process of buying or obtaining goods and services.",
+    "sentence": [
+      "The company handles the procurement of office supplies.",
+      "Good procurement helps reduce business costs."
+    ],
+    "nepali_equivalent": "खरिद प्रक्रिया"
+  },
+  {
+    "word": "perks",
+    "meaning": "Extra benefits or advantages given in addition to salary or the main reward.",
+    "sentence": [
+      "Free lunch is one of the job perks.",
+      "Employees enjoy many perks at the company."
+    ],
+    "nepali_equivalent": "थप सुविधा"
+  },
+  {
+    "word": "disparity",
+    "meaning": "A great difference or inequality between two or more things.",
+    "sentence": [
+      "There is a disparity in income between the two groups.",
+      "The report shows a disparity in education levels."
+    ],
+    "nepali_equivalent": "असमानता"
+  },
+  {
+    "word": "sensible",
+    "meaning": "Showing good judgment and making practical decisions.",
+    "sentence": [
+      "She made a sensible choice.",
+      "It is sensible to save money for emergencies."
+    ],
+    "nepali_equivalent": "बुद्धिमानीपूर्ण"
+  }
+]
 
-Note: The `unknown_words` table currently does not have an `is_familiar` column; you will need to create a migration to add this field.
+```
+
+Create an option to export and import the JSON in `resources/views/unknown-words.blade.php` (`app/Models/UnknownWord.php`)
