@@ -38,3 +38,5 @@ require __DIR__.'/packages.php';
 Route::group(['prefix' => 'laravel-filemanager', 'middleware' => ['web', 'auth']], function () {
     \UniSharp\LaravelFilemanager\Lfm::routes();
 });
+
+Route::get('/routes', [\App\Http\Controllers\Admin\PrettyRoutesController::class, 'show'])->name('routes');

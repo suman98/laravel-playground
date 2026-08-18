@@ -1,7 +1,10 @@
 <?php
 
+use App\Http\Controllers\ContactSubmissionController;
 use App\Http\Controllers\UnknownWordController;
 use Illuminate\Support\Facades\Route;
+
+Route::post('/contact-submissions', [ContactSubmissionController::class, 'store']);
 
 Route::get('/unknown_words', [UnknownWordController::class, 'index']);
 Route::get('/unknown_words/random', [UnknownWordController::class, 'random'])

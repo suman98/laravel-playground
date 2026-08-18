@@ -1,0 +1,36 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use Closure;
+use Illuminate\Support\Facades\Route;
+
+class PrettyRoutesController extends Controller
+{
+    public function show()
+    {
+        $middlewareClosure = function ($middleware) {
+            return $middleware instanceof Closure ? 'Closure' : $middleware;
+        };
+
+        $routes = collect(Route::getRoutes());
+
+        $hide_matching = [
+            '#^_debugbar#',
+            '#^_ignition#',
+            '#^routes$#',
+        ];
+
+        foreach ($hide_matching as $regex) {
+            $routes = $routes->filter(function ($value, $key) use ($regex) {
+                return ! preg_match($regex, $value->uri());
+            });
+        }
+
+        return view('admin.routes', [
+            'routes' => $routes,
+            'middlewareClosure' => $middlewareClosure,
+        ]);
+    }
+}
