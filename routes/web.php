@@ -1,18 +1,24 @@
 <?php
 
+use App\Http\Controllers\LandingController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-Route::get('/', function () {
+Route::get('/', [LandingController::class, 'index'])->name('landing');
+Route::get('/speedtest/ping', [LandingController::class, 'ping'])->name('speedtest.ping');
+Route::get('/speedtest/download', [LandingController::class, 'speedtestDownload'])->name('speedtest.download');
+Route::post('/speedtest/upload', [LandingController::class, 'speedtestUpload'])->name('speedtest.upload');
+
+Route::get('/welcome', function () {
     return Inertia::render('Welcome', [
         'canLogin' => Route::has('login'),
         'canRegister' => Route::has('register'),
         'laravelVersion' => Application::VERSION,
         'phpVersion' => PHP_VERSION,
     ]);
-});
+})->name('welcome');
 
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');

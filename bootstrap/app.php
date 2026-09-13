@@ -19,6 +19,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->validateCsrfTokens(except: [
             'ollama/*',
+            'speedtest/*',
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
